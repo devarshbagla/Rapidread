@@ -1,0 +1,58 @@
+.onboarding {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.onboarding-skip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 40;
+  height: var(--topbar-h);
+  padding: 0 18px;
+  color: var(--text-dim);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.onboarding-skip:hover {
+  color: var(--text);
+}
+
+/* Same language as the speed-drag readout, but fixed and muted for the ramp. */
+.onboarding-wpm {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  z-index: 25;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.onboarding-wpm-unit {
+  color: var(--text-dim);
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.onboarding-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  z-index: 25;
+  transform: translateX(-50%);
+  color: var(--text-dim);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
