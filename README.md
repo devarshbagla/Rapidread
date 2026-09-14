@@ -15,17 +15,18 @@ Then open the printed local URL (usually `http://localhost:5173`).
 
 ## GitHub Pages
 
-The site is built from **`main` only** — there is no separate Pages branch. Every push to `main` runs the deploy workflow, which builds `dist/` and publishes it through GitHub Actions.
-
-One-time Pages setting:
-
-1. Open **Settings → Pages**
-2. Under **Build and deployment → Source**, choose **GitHub Actions** (not “Deploy from a branch”)
-3. Save — you can remove the old `gh-pages` branch afterward if it still exists
-
-The live site is:
+Every push to `main` builds `dist/` and deploys it. The live URL is:
 
 **https://devarshbagla.github.io/Rapidread/**
+
+**Pages must not publish the `main` branch root.** That serves the Vite source (`/src/main.tsx`) and the app stays blank in the browser.
+
+Fix it in [Settings → Pages](https://github.com/devarshbagla/Rapidread/settings/pages) with either option:
+
+1. **Preferred:** Build and deployment → Source → **GitHub Actions**
+2. **Alternative:** Source → **Deploy from a branch**, Branch → **`gh-pages`**, Folder → `/` (the workflow keeps that branch updated)
+
+Do not leave Source on `main` / `/`.
 
 To build the same bundle locally:
 
