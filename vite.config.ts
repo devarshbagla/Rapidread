@@ -7,6 +7,6 @@ export default defineConfig({
   optimizeDeps: { include: ['@tabler/icons-react'] },
   test: {
     environment: 'jsdom',
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
   },
 });

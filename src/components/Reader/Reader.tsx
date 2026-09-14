@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChapterSpan, FlatBook } from '../../reader/flatten';
+import { chunkDurationMs } from '../../reader/pacing';
 import { useBookContent } from '../../reader/useBookContent';
 import { useProgressPersistence } from '../../reader/useProgressPersistence';
 import { useReaderGestures, type SpeedDragPosition } from '../../reader/useReaderGestures';
@@ -210,7 +211,25 @@ function ReaderStage({
       : `Paused at ${percent} percent, ${engine.wpm} words per minute.`;
 
   return (
-    <div className="reader" data-entering={playEntrance}>
+    <div
+      className="reader"
+      data-entering={playEntrance}
+      data-wpm={engine.wpm}
+      data-baseline-wpm={engine.baselineWpm}
+      data-words-read={engine.wordsSinceBaseline}
+      data-chunk-size={settings.chunkSize}
+      data-chunk-ms={chunkDurationMs({
+        wpm: engine.wpm,
+        chunkWordCount: Math.max(1, engine.chunk.end - engine.chunk.start),
+        endsSentence: engine.chunk.endsSentence,
+        endsClause: engine.chunk.endsClause,
+        punctuationWeight: settings.punctuationWeight,
+      })}
+      data-ends-clause={engine.chunk.endsClause}
+      data-ends-sentence={engine.chunk.endsSentence}
+      data-orp={settings.orpHighlight && settings.chunkSize === 1}
+      data-adaptive={settings.adaptivePacing}
+    >
       <ReaderTopBar onBack={onExit} onOpenSettings={onOpenSettings} />
 
       {previewOpen || suspended ? null : (
