@@ -15,7 +15,7 @@ now lets get into how to actually use the app.
 
 when you first open it up you'll land on your shelf, thats the library. if its empty it'll just say your shelf is empty with an add a book button. if youve used it before itll just reopen whatever you were last reading. and dont worry, everything stays right here in your browser, nothing gets uploaded anywhere.
 
-to add a book it supports .txt and .epub files. you can either hit the add a book button and pick a file, or just drag and drop it straight onto the window while youre on the shelf. tap a book to open it, and if you ever wanna remove one theres a trash icon on the tile, just confirm and its gone.
+to add a book it supports .txt, .epub, .pdf, .docx, .md, .html, and images (png jpg and friends, read with ocr). you can either hit the add a book button and pick a file, or just drag and drop it straight onto the window while youre on the shelf. tap a book to open it, and if you ever wanna remove one theres a trash icon on the tile, just confirm and its gone.
 
 now the actual reading screen theres no play button anywhere. the screen itself is the control. clicking the lower half starts and stops it. holding and dragging sideways on the lower half changes your speed, the word freezes and a wpm number follows your finger, let go and it locks in and keeps going. clicking the upper half pauses and pops open a little preview of nearby lines, you can tap any line to jump straight there. first time you open it youll get a quick tip showing you those three moves. while its paused youll see stuff like paused, 23%, 300 wpm with a progress bar under it. and when you finish a book itll just say youve finished it with options to read again or go back to the shelf.
 
@@ -25,6 +25,6 @@ theres also a settings menu, the gear icon. you can change your accent color bet
 
 everything saves right there in your browser too, your shelf, where you left off and your last speed per book, and all your settings. reload the page and itll pick up right where you left off, just dont clear your browser data for the site or itll wipe the shelf.
 
-so the whole loop is basically, add a txt or epub, open it, click the lower half to start, drag sideways to find your speed, use the upper half whenever you wanna jump around, and esc or back takes you home.
+so the whole loop is basically, add a book, open it, click the lower half to start, drag sideways to find your speed, use the upper half whenever you wanna jump around, and esc or back takes you home.
 
 thats rapidread. set your pace and read.`;

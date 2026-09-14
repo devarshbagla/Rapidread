@@ -1,6 +1,6 @@
 # Rapidread
 
-An offline RSVP (Rapid Serial Visual Presentation) speed reader for TXT and EPUB books. Everything runs in the browser and stays on the device — no accounts, no backend, no analytics.
+An offline RSVP (Rapid Serial Visual Presentation) speed reader for TXT, EPUB, PDF, DOCX, Markdown, HTML, and images (via OCR). Everything runs in the browser and stays on the device — no accounts, no backend, no analytics.
 
 The Reader is the default screen: it reopens the last book being read. The shelf, import, and settings are a tap away.
 
@@ -48,7 +48,7 @@ Settings (gear icon) covers accent colour, the focus-letter highlight, 1/2/3-wor
 
 ## Adding a format later
 
-Parsers live in `src/parsers/`. Each one implements `parse(file: File): Promise<NormalizedBook>` and is registered in `src/parsers/index.ts`. The reader engine, the store, and the UI never see format-specific data — a future PDF or DOCX parser is a new file plus one registry entry.
+Parsers live in `src/parsers/`. Each one implements `parse(file: File): Promise<NormalizedBook>` and is registered in `src/parsers/index.ts`. The reader engine, the store, and the UI never see format-specific data — another format is a new file plus one registry entry. Scanned PDFs and images use in-browser OCR (Tesseract).
 
 ## Scripts
 

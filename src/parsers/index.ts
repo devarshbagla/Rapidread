@@ -1,12 +1,17 @@
 import type { NormalizedBook } from '../types/book';
 import { extensionOf } from './decode';
 import { ImportError, quoted, toImportError } from './errors';
+import { parseDocx } from './docx';
 import { parseEpub } from './epub';
+import { parseHtml } from './html';
+import { parseImage } from './image';
+import { parseMarkdown } from './md';
+import { parsePdf } from './pdf';
 import { parseTxt } from './txt';
 
 export { ImportError } from './errors';
 
-export type FormatId = 'txt' | 'epub';
+export type FormatId = 'txt' | 'epub' | 'pdf' | 'docx' | 'md' | 'html' | 'image';
 
 export interface FormatParser {
   id: FormatId;
@@ -37,6 +42,43 @@ const PARSERS: readonly FormatParser[] = [
     mimeTypes: ['application/epub+zip', 'application/epub'],
     parse: parseEpub,
   },
+  {
+    id: 'pdf',
+    label: 'PDF',
+    extensions: ['pdf'],
+    mimeTypes: ['application/pdf'],
+    parse: parsePdf,
+  },
+  {
+    id: 'docx',
+    label: 'Word',
+    extensions: ['docx'],
+    mimeTypes: [
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ],
+    parse: parseDocx,
+  },
+  {
+    id: 'md',
+    label: 'Markdown',
+    extensions: ['md', 'markdown'],
+    mimeTypes: ['text/markdown', 'text/x-markdown'],
+    parse: parseMarkdown,
+  },
+  {
+    id: 'html',
+    label: 'HTML',
+    extensions: ['html', 'htm'],
+    mimeTypes: ['text/html'],
+    parse: parseHtml,
+  },
+  {
+    id: 'image',
+    label: 'Image',
+    extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'],
+    mimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/bmp'],
+    parse: parseImage,
+  },
 ];
 
 /** Value for an `<input type="file">` accept attribute. */
@@ -45,8 +87,8 @@ export const ACCEPTED_FILE_TYPES = PARSERS.flatMap((parser) => [
   ...parser.mimeTypes,
 ]).join(',');
 
-/** "TXT or EPUB" — used in empty states and error copy. */
-export const SUPPORTED_FORMATS_LABEL = '.txt or .epub';
+/** Used in empty states and error copy. */
+export const SUPPORTED_FORMATS_LABEL = '.txt, .epub, .pdf, .docx, .md, .html, or images';
 
 export function detectParser(file: File): FormatParser | undefined {
   const extension = extensionOf(file.name);
