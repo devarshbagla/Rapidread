@@ -1,0 +1,46 @@
+/*
+ * Design system. Everything visual is expressed as a custom property here so a
+ * runtime change (e.g. the accent swap in Settings) is a single
+ * `style.setProperty` call rather than a rebuild.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces — flat only. No shadows, gradients or blur anywhere in this app. */
+  --bg: #0a0b0d;
+  --surface: #16181c;
+  --surface-raised: #1a1d21;
+  --hairline: #1d2024;
+
+  /* Text */
+  --text: #e7eaed;
+  --text-dim: #6b707a;
+
+  /* Accent. Overwritten at runtime by the Settings accent picker. */
+  --accent: #2dd4bf;
+  /* Derived tints so only `--accent` ever needs to be set. */
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --accent-quiet: color-mix(in srgb, var(--accent) 45%, transparent);
+
+  /* Typography */
+  --font-sans: 'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', 'IBM Plex Mono', ui-monospace,
+    SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Radii — small and consistent, never bubbly. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Motion. 150–250ms for every UI transition; no spring, no overshoot. */
+  --dur-fast: 150ms;
+  --dur-mid: 200ms;
+  --dur-slow: 250ms;
+  --ease-out: cubic-bezier(0.16, 0.84, 0.44, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Layout */
+  --topbar-h: 48px;
+  --edge-guard: 24px;
+}
