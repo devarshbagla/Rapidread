@@ -69,3 +69,17 @@
 .onboarding-coach-tap:hover {
   color: var(--text);
 }
+
+.onboarding-coach-line {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  z-index: 26;
+  transform: translateX(-50%);
+  width: min(90vw, 34rem);
+  color: var(--text-dim);
+  font-size: 12.5px;
+  line-height: 1.5;
+  text-align: center;
+  pointer-events: none;
+}

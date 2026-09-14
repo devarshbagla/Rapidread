@@ -13,7 +13,7 @@ export const COACH_LINES: Record<CoachKind, string> = {
 };
 
 /** Comfortable fixed pace for coaching asides. */
-export const COACH_WPM = 320;
+export const COACH_WPM = 240;
 
 export function coachTokens(kind: CoachKind): Token[] {
   return tokenize(COACH_LINES[kind]);

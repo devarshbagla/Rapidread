@@ -164,16 +164,17 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     if (coaching || done) return;
 
     if (isPlaying) {
-      toggle();
+      pause();
       if (!seen.current.playPause) {
         seen.current.playPause = true;
         beginCoach('playPause', true);
+        return;
       }
       return;
     }
 
     toggle();
-  }, [beginCoach, coaching, done, isPlaying, toggle]);
+  }, [beginCoach, coaching, done, isPlaying, pause, toggle]);
 
   const handleSpeedCommit = useCallback(
     (next: number) => {
@@ -319,6 +320,12 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       {!reducedMotion && !coaching && isPlaying ? (
         <p className="onboarding-wpm mono" aria-hidden="true">
           {wpm} <span className="onboarding-wpm-unit">wpm</span>
+        </p>
+      ) : null}
+
+      {coaching ? (
+        <p className="onboarding-coach-line" aria-hidden="true">
+          {coach !== null ? coach.tokens.map((token) => token.text).join(' ') : ''}
         </p>
       ) : null}
 
