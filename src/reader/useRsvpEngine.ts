@@ -33,6 +33,8 @@ export interface RsvpEngine {
   wpm: number;
   /** Speed the ramp counts up from. */
   baselineWpm: number;
+  /** Words consumed since the baseline last moved; drives the +5/1000 ramp. */
+  wordsSinceBaseline: number;
   fraction: number;
   play: () => void;
   pause: () => void;
@@ -93,6 +95,14 @@ export function useRsvpEngine({
     state.current = { index, wpm, baselineWpm, finished, chunkSize, chapterEnd: chapter.end };
   });
 
+  // Turning the ramp on mid-book must start from the current speed, not from
+  // words that were read while it was off.
+  const [pacingGate, setPacingGate] = useState(adaptivePacing);
+  if (pacingGate !== adaptivePacing) {
+    setPacingGate(adaptivePacing);
+    setWordsSinceBaseline(0);
+  }
+
   const advance = useCallback(() => {
     const current = state.current;
     const active = chunkAt(book.words, current.index, current.chunkSize, current.chapterEnd);
@@ -105,8 +115,8 @@ export function useRsvpEngine({
       return;
     }
     setIndex(active.end);
-    setWordsSinceBaseline((words) => words + consumed);
-  }, [book]);
+    if (adaptivePacing) setWordsSinceBaseline((words) => words + consumed);
+  }, [adaptivePacing, book]);
 
   useEffect(() => {
     if (!isPlaying || isFrozen || finished) return;
@@ -220,6 +230,7 @@ export function useRsvpEngine({
     finished,
     wpm,
     baselineWpm,
+    wordsSinceBaseline,
     fraction: finished ? 1 : book.wordCount === 0 ? 0 : Math.min(1, chunk.end / book.wordCount),
     play,
     pause,

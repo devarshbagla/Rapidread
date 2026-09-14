@@ -132,6 +132,261 @@ describe('parseEpub', () => {
     await expect(parseEpub(file)).rejects.toThrow('scanned images');
   });
 
+  it('strips footnote markers and skips a table-of-contents guide entry', async () => {
+    const file = await epubFile('notes.epub', (zip) => {
+      zip.file(
+        'META-INF/container.xml',
+        `<?xml version="1.0"?>
+         <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+           <rootfiles>
+             <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+           </rootfiles>
+         </container>`,
+      );
+      zip.file(
+        'OEBPS/content.opf',
+        `<?xml version="1.0"?>
+         <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="id" version="3.0">
+           <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+             <dc:title>Noted</dc:title>
+           </metadata>
+           <manifest>
+             <item id="ncx2" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+             <item id="toc" href="toc.xhtml" media-type="application/xhtml+xml"/>
+             <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
+           </manifest>
+           <spine toc="ncx2">
+             <itemref idref="toc"/>
+             <itemref idref="ch1"/>
+           </spine>
+           <guide>
+             <reference type="toc" title="Contents" href="toc.xhtml"/>
+           </guide>
+         </package>`,
+      );
+      zip.file(
+        'OEBPS/toc.ncx',
+        `<?xml version="1.0"?>
+         <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/">
+           <navMap>
+             <navPoint id="n1"><navLabel><text>The Real Chapter</text></navLabel>
+               <content src="ch1.xhtml"/></navPoint>
+           </navMap>
+         </ncx>`,
+      );
+      zip.file(
+        'OEBPS/toc.xhtml',
+        `<html xmlns="http://www.w3.org/1999/xhtml"><body>
+           <h1>Contents</h1>
+           <a href="ch1.xhtml">The Real Chapter</a>
+         </body></html>`,
+      );
+      zip.file(
+        'OEBPS/ch1.xhtml',
+        `<html xmlns="http://www.w3.org/1999/xhtml"><body>
+           <h1>The Real Chapter</h1>
+           <p>Achilles' wrath<a href="#fn1" class="pginternal"><sup>[40]</sup></a> was terrible.</p>
+           <aside epub:type="footnote" id="fn1">A later editor's note that should not be read aloud.</aside>
+         </body></html>`,
+      );
+    });
+
+    const book = await parseEpub(file);
+    expect(book.chapters.map((chapter) => chapter.title)).toEqual(['The Real Chapter']);
+    expect(book.chapters[0].tokens.map((token) => token.text)).toEqual([
+      'The',
+      'Real',
+      'Chapter',
+      "Achilles'",
+      'wrath',
+      'was',
+      'terrible.',
+    ]);
+  });
+
+  it('keeps dramatis personæ when it shares a file with a contents table', async () => {
+    const file = await epubFile('play.epub', (zip) => {
+      zip.file(
+        'META-INF/container.xml',
+        `<?xml version="1.0"?>
+         <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+           <rootfiles>
+             <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+           </rootfiles>
+         </container>`,
+      );
+      zip.file(
+        'OEBPS/content.opf',
+        `<?xml version="1.0"?>
+         <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="id" version="3.0">
+           <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+             <dc:title>Hamlet</dc:title>
+           </metadata>
+           <manifest>
+             <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+             <item id="front" href="front.xhtml" media-type="application/xhtml+xml"/>
+             <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
+           </manifest>
+           <spine toc="ncx">
+             <itemref idref="front"/>
+             <itemref idref="ch1"/>
+           </spine>
+           <guide>
+             <reference type="toc" title="Contents" href="front.xhtml"/>
+           </guide>
+         </package>`,
+      );
+      zip.file(
+        'OEBPS/toc.ncx',
+        `<?xml version="1.0"?>
+         <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/">
+           <navMap>
+             <navPoint id="n0"><navLabel><text>Contents</text></navLabel>
+               <content src="front.xhtml"/></navPoint>
+             <navPoint id="n1"><navLabel><text>Dramatis Personæ</text></navLabel>
+               <content src="front.xhtml#cast"/></navPoint>
+             <navPoint id="n2"><navLabel><text>ACT I</text></navLabel>
+               <content src="ch1.xhtml"/></navPoint>
+           </navMap>
+         </ncx>`,
+      );
+      zip.file(
+        'OEBPS/front.xhtml',
+        `<html xmlns="http://www.w3.org/1999/xhtml"><body>
+           <h2>Contents</h2>
+           <table>
+             <tr><td>ACT I</td></tr>
+             <tr><td><a href="ch1.xhtml">Scene I. Elsinore</a></td></tr>
+             <tr><td><a href="ch1.xhtml#s2">Scene II. A room of state</a></td></tr>
+           </table>
+           <h3 id="cast">Dramatis Personæ</h3>
+           <p>HAMLET, Prince of Denmark<br/>CLAUDIUS, King of Denmark</p>
+         </body></html>`,
+      );
+      zip.file(
+        'OEBPS/ch1.xhtml',
+        `<html xmlns="http://www.w3.org/1999/xhtml"><body>
+           <h2>ACT I</h2>
+           <p>Who's there?</p>
+         </body></html>`,
+      );
+    });
+
+    const book = await parseEpub(file);
+    expect(book.chapters.map((chapter) => chapter.title)).toEqual(['Dramatis Personæ', 'ACT I']);
+    expect(book.chapters[0].tokens.map((token) => token.text)).toEqual([
+      'Dramatis',
+      'Personæ',
+      'HAMLET,',
+      'Prince',
+      'of',
+      'Denmark',
+      'CLAUDIUS,',
+      'King',
+      'of',
+      'Denmark',
+    ]);
+  });
+
+  it('names a shared file after BOOK I rather than the volume title', async () => {
+    const file = await epubFile('iliad.epub', (zip) => {
+      zip.file(
+        'META-INF/container.xml',
+        `<?xml version="1.0"?>
+         <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+           <rootfiles>
+             <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+           </rootfiles>
+         </container>`,
+      );
+      zip.file(
+        'OEBPS/content.opf',
+        `<?xml version="1.0"?>
+         <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="id" version="2.0">
+           <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+             <dc:title>The Iliad</dc:title>
+           </metadata>
+           <manifest>
+             <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+             <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
+           </manifest>
+           <spine toc="ncx"><itemref idref="ch1"/></spine>
+         </package>`,
+      );
+      zip.file(
+        'OEBPS/toc.ncx',
+        `<?xml version="1.0"?>
+         <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/">
+           <navMap>
+             <navPoint id="n0"><navLabel><text>THE ILIAD.</text></navLabel>
+               <content src="ch1.xhtml#title"/></navPoint>
+             <navPoint id="n1"><navLabel><text>BOOK I.</text></navLabel>
+               <content src="ch1.xhtml#b1"/></navPoint>
+           </navMap>
+         </ncx>`,
+      );
+      zip.file(
+        'OEBPS/ch1.xhtml',
+        `<html xmlns="http://www.w3.org/1999/xhtml"><body>
+           <h2 id="title">THE ILIAD.</h2>
+           <h2 id="b1">BOOK I.</h2>
+           <p>Achilles' wrath, to Greece the direful spring.</p>
+         </body></html>`,
+      );
+    });
+
+    const book = await parseEpub(file);
+    expect(book.chapters.map((chapter) => chapter.title)).toEqual(['BOOK I.']);
+  });
+
+  it('cuts a Gutenberg licence dumped into the last chapter', async () => {
+    const file = await epubFile('licence.epub', (zip) => {
+      zip.file(
+        'META-INF/container.xml',
+        `<?xml version="1.0"?>
+         <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+           <rootfiles>
+             <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+           </rootfiles>
+         </container>`,
+      );
+      zip.file(
+        'OEBPS/content.opf',
+        `<?xml version="1.0"?>
+         <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="id" version="3.0">
+           <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+             <dc:title>Alice</dc:title>
+           </metadata>
+           <manifest>
+             <item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/>
+           </manifest>
+           <spine><itemref idref="ch1"/></spine>
+         </package>`,
+      );
+      zip.file(
+        'OEBPS/ch1.xhtml',
+        `<html xmlns="http://www.w3.org/1999/xhtml"><body>
+           <h1>CHAPTER XII</h1>
+           <p>remembering her own child-life, and the happy summer days.</p>
+           <h5>THE END</h5>
+           <div><b>Transcriber’s Notes</b><p>Cover art is public domain.</p></div>
+           <div class="pg-boilerplate pgheader footer" id="pg-footer">
+             <span>*** END OF THE PROJECT GUTENBERG EBOOK ALICE ***</span>
+             <div>Redistribution is subject to the trademark license.</div>
+             <div id="project-gutenberg-license">START: FULL LICENSE</div>
+             <h2>THE FULL PROJECT GUTENBERG LICENSE</h2>
+           </div>
+         </body></html>`,
+      );
+    });
+
+    const book = await parseEpub(file);
+    const text = book.chapters[0].tokens.map((token) => token.text).join(' ');
+    expect(text).toContain('happy summer days.');
+    expect(text).toContain('THE END');
+    expect(text).not.toMatch(/LICENSE|Redistribution|GUTENBERG|Transcriber|public domain/i);
+  });
+
   it('names a copy-protected book rather than calling it empty', async () => {
     const file = await epubFile('locked.epub', (zip) => {
       zip.file('META-INF/encryption.xml', '<encryption/>');
