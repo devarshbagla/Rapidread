@@ -121,4 +121,52 @@ describe('rampedWpm', () => {
       }),
     ).toBe(700);
   });
+
+  it('continues ramping from a manual baseline instead of snapping back', () => {
+    expect(
+      rampedWpm({
+        enabled: true,
+        baselineWpm: 400,
+        wordsSinceBaseline: RAMP_WORD_INTERVAL * 2,
+        startWpm: 300,
+      }),
+    ).toBe(410);
+  });
+});
+
+describe('punctuation weight scaling', () => {
+  it('scales both clause and sentence dwells by the same multiplier', () => {
+    const clause1 = chunkDurationMs({
+      wpm: 300,
+      chunkWordCount: 1,
+      endsSentence: false,
+      endsClause: true,
+      punctuationWeight: 1,
+    });
+    const clause2 = chunkDurationMs({
+      wpm: 300,
+      chunkWordCount: 1,
+      endsSentence: false,
+      endsClause: true,
+      punctuationWeight: 2,
+    });
+    const sentence1 = chunkDurationMs({
+      wpm: 300,
+      chunkWordCount: 1,
+      endsSentence: true,
+      endsClause: false,
+      punctuationWeight: 1,
+    });
+    const sentence2 = chunkDurationMs({
+      wpm: 300,
+      chunkWordCount: 1,
+      endsSentence: true,
+      endsClause: false,
+      punctuationWeight: 2,
+    });
+    const base = msPerWord(300);
+    expect(clause2 - base).toBeCloseTo((clause1 - base) * 2);
+    expect(sentence2 - base).toBeCloseTo((sentence1 - base) * 2);
+    expect(sentence1 - base).toBeGreaterThan(clause1 - base);
+  });
 });

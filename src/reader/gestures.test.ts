@@ -17,4 +17,11 @@ describe('wpmFromDrag', () => {
     expect(wpmFromDrag(300, 10_000)).toBe(WPM_MAX);
     expect(wpmFromDrag(300, -10_000)).toBe(WPM_MIN);
   });
+
+  it('is relative to the press point, not the screen position', () => {
+    // +40px from x=80 and +40px from x=900 must produce the same delta.
+    expect(wpmFromDrag(300, 40)).toBe(wpmFromDrag(300, 40));
+    expect(wpmFromDrag(240, 40)).toBe(260);
+    expect(wpmFromDrag(500, 40)).toBe(520);
+  });
 });
