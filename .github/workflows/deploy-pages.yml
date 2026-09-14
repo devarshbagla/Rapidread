@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -44,6 +44,16 @@ jobs:
         with:
           path: dist
 
+      # Keep gh-pages in sync so “Deploy from a branch → gh-pages” also works
+      # if the repo Pages source has not been switched to GitHub Actions yet.
+      - name: Publish gh-pages branch fallback
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
+          clean: true
+          single-commit: true
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -51,6 +61,34 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Prefer Actions hosting so the legacy Jekyll “main /” publisher stops
+      # overwriting the Vite bundle with raw /src/main.tsx.
+      - name: Ensure Pages uses GitHub Actions
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/pages" -X PUT --input - <<'EOF'
+          {"build_type":"workflow"}
+          EOF
+          gh api "repos/${{ github.repository }}/pages" --jq '{build_type,source,html_url,status}'
+
       - name: Deploy to GitHub Pages
         id: deployment
+        uses: actions/deploy-pages@v4
+
+  # Legacy branch deploys (Jekyll on main/) often finish after Actions and
+  # overwrite the Vite build with the unbundled source. Republish once they settle.
+  ensure-live:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.redeploy.outputs.page_url }}
+    steps:
+      - name: Wait for competing branch deploy
+        run: sleep 90
+
+      - name: Redeploy Actions artifact
+        id: redeploy
         uses: actions/deploy-pages@v4
