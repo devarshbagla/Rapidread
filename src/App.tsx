@@ -1,14 +1,25 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BookOpenTransition } from './components/BookOpenTransition';
 import { Library } from './components/Library/Library';
+import { Onboarding } from './components/Onboarding/Onboarding';
 import { Reader } from './components/Reader/Reader';
 import { SettingsScreen } from './components/Settings/SettingsScreen';
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
+import { loadFlag, saveFlag } from './store/db';
 import type { BookSummary } from './store/types';
 import { useLibrary, type LibraryApi } from './store/useLibrary';
 import { useSettingsState } from './store/useSettingsState';
 
-type View = { kind: 'boot' } | { kind: 'library' } | { kind: 'reader'; bookId: string };
+/** Persisted once the first-launch tutorial finishes or is skipped. */
+export const ONBOARDING_FLAG = 'rapidread_onboarded';
+/** The tutorial already covers the three reader moves. */
+const READER_HINT_FLAG = 'reader-hint-seen';
+
+type View =
+  | { kind: 'boot' }
+  | { kind: 'onboarding' }
+  | { kind: 'library' }
+  | { kind: 'reader'; bookId: string };
 
 interface OpeningBook {
   book: BookSummary;
@@ -25,8 +36,28 @@ export default function App() {
   const [chosenView, setChosenView] = useState<View | undefined>(undefined);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [opening, setOpening] = useState<OpeningBook | null>(null);
+  // `null` while the onboarding flag is still loading from storage.
+  const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
-  const view = chosenView ?? initialView(settingsReady && library.ready, library);
+  useEffect(() => {
+    let active = true;
+    void loadFlag(ONBOARDING_FLAG).then((seen) => {
+      if (active) setOnboarded(seen);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const ready = settingsReady && library.ready && onboarded !== null;
+  const view = chosenView ?? initialView(ready, library, onboarded === true);
+
+  const finishOnboarding = useCallback(() => {
+    void saveFlag(ONBOARDING_FLAG, true);
+    void saveFlag(READER_HINT_FLAG, true);
+    setOnboarded(true);
+    setChosenView({ kind: 'library' });
+  }, []);
 
   const openBook = useCallback(
     (book: BookSummary, origin: DOMRect) => {
@@ -46,6 +77,10 @@ export default function App() {
     view.kind === 'reader' ? library.books.find((book) => book.id === view.bookId) : undefined;
 
   if (view.kind === 'boot') return <div className="app-boot" />;
+
+  if (view.kind === 'onboarding') {
+    return <Onboarding onComplete={finishOnboarding} />;
+  }
 
   return (
     <>
@@ -89,8 +124,9 @@ export default function App() {
   );
 }
 
-function initialView(ready: boolean, library: LibraryApi): View {
+function initialView(ready: boolean, library: LibraryApi, onboarded: boolean): View {
   if (!ready) return { kind: 'boot' };
+  if (!onboarded) return { kind: 'onboarding' };
   const lastBookId = library.lastBookId;
   const exists = lastBookId !== undefined && library.books.some((book) => book.id === lastBookId);
   return exists ? { kind: 'reader', bookId: lastBookId } : { kind: 'library' };
