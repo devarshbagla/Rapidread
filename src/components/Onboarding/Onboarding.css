@@ -55,4 +55,17 @@
   font-size: 12.5px;
   letter-spacing: 0.04em;
   pointer-events: none;
+  text-align: center;
+  max-width: min(90vw, 28rem);
+}
+
+.onboarding-coach-tap {
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.onboarding-coach-tap:hover {
+  color: var(--text);
 }
