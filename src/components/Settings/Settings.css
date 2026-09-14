@@ -4,6 +4,10 @@
   z-index: 70;
   overflow-y: auto;
   background: var(--bg);
+}
+
+.settings-head,
+.settings-body {
   animation: fade-in var(--dur-fast) var(--ease-out) both;
 }
 

@@ -213,7 +213,7 @@ function ReaderStage({
     <div className="reader" data-entering={playEntrance}>
       <ReaderTopBar onBack={onExit} onOpenSettings={onOpenSettings} />
 
-      {previewOpen ? null : (
+      {previewOpen || suspended ? null : (
         <div className="reader-word">
           <WordDisplay
             chunk={engine.chunk}
