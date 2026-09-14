@@ -15,11 +15,13 @@ Then open the printed local URL (usually `http://localhost:5173`).
 
 ## GitHub Pages
 
-Every push to `main` builds the app and publishes it to the `gh-pages` branch.
+The site is built from **`main` only** — there is no separate Pages branch. Every push to `main` runs the deploy workflow, which builds `dist/` and publishes it through GitHub Actions.
+
+One-time Pages setting:
 
 1. Open **Settings → Pages**
-2. Under **Build and deployment → Source**, choose **Deploy from a branch**
-3. Set **Branch** to `gh-pages` / `(root)` and save
+2. Under **Build and deployment → Source**, choose **GitHub Actions** (not “Deploy from a branch”)
+3. Save — you can remove the old `gh-pages` branch afterward if it still exists
 
 The live site is:
 
