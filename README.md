@@ -4,17 +4,26 @@ An offline RSVP (Rapid Serial Visual Presentation) speed reader for TXT and EPUB
 
 The Reader is the default screen: it reopens the last book being read. The shelf, import, and settings are a tap away.
 
-## Run it
+## Run it locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Then open the printed local URL. To ship a static build (Vercel, Netlify, or any static host):
+Then open the printed local URL (usually `http://localhost:5173`).
+
+## GitHub Pages
+
+Every push to `main` builds and deploys the static site. Once Pages is enabled for this repo (Settings → Pages → Source: **GitHub Actions**), the app is at:
+
+**https://devarshbagla.github.io/Rapidread/**
+
+To build the same bundle locally:
 
 ```bash
-npm run build
+BASE_PATH=/Rapidread/ npm run build
+npm run preview
 ```
 
 `dist/` is the entire site. There is no server-side code.

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:pages": "BASE_PATH=/Rapidread/ npm run build",
     "preview": "vite preview",
     "lint": "oxlint",
     "typecheck": "tsc -b",
