@@ -66,8 +66,8 @@ export function SettingsScreen({ settings, onChange, onClose }: SettingsScreenPr
       </header>
 
       <div className="settings-body">
-        <Row label="Accent colour" hint="Used for the focus letter, progress and primary actions.">
-          <div className="swatches" role="radiogroup" aria-label="Accent colour">
+        <Row label="Accent color" hint="Used for the focus letter, progress and primary actions.">
+            <div className="swatches" role="radiogroup" aria-label="Accent color">
             {ACCENTS.map((preset) => (
               <button
                 key={preset.id}
@@ -101,7 +101,7 @@ export function SettingsScreen({ settings, onChange, onClose }: SettingsScreenPr
           label="Focus letter highlight"
           hint={
             orpAvailable
-              ? 'Tints the optimal recognition point in the accent colour.'
+              ? 'Tints the optimal recognition point in the accent color.'
               : 'Available in 1-word mode only.'
           }
         >

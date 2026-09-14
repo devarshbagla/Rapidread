@@ -213,12 +213,14 @@ function ReaderStage({
     <div className="reader" data-entering={playEntrance}>
       <ReaderTopBar onBack={onExit} onOpenSettings={onOpenSettings} />
 
-      <div className="reader-word">
-        <WordDisplay
-          chunk={engine.chunk}
-          orpHighlight={settings.orpHighlight && settings.chunkSize === 1}
-        />
-      </div>
+      {previewOpen ? null : (
+        <div className="reader-word">
+          <WordDisplay
+            chunk={engine.chunk}
+            orpHighlight={settings.orpHighlight && settings.chunkSize === 1}
+          />
+        </div>
+      )}
 
       {/* The whole viewport is the control: top half previews, bottom half plays. */}
       <div className="reader-surface" {...surface} />
