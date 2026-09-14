@@ -15,14 +15,20 @@ Then open the printed local URL (usually `http://localhost:5173`).
 
 ## GitHub Pages
 
-Every push to `main` builds and deploys the static site. Once Pages is enabled for this repo (Settings → Pages → Source: **GitHub Actions**), the app is at:
+Every push to `main` builds the app and publishes it to the `gh-pages` branch.
+
+1. Open **Settings → Pages**
+2. Under **Build and deployment → Source**, choose **Deploy from a branch**
+3. Set **Branch** to `gh-pages` / `(root)` and save
+
+The live site is:
 
 **https://devarshbagla.github.io/Rapidread/**
 
 To build the same bundle locally:
 
 ```bash
-BASE_PATH=/Rapidread/ npm run build
+npm run build:pages
 npm run preview
 ```
 
