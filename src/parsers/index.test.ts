@@ -16,8 +16,8 @@ describe('detectParser', () => {
 
 describe('parse', () => {
   it('explains unsupported formats without a stack trace', async () => {
-    await expect(parse(new File(['%PDF'], 'paper.pdf'))).rejects.toThrow(
-      ".pdf files aren't supported yet",
+    await expect(parse(new File(['{\\rtf'], 'paper.rtf'))).rejects.toThrow(
+      ".rtf files aren't supported yet",
     );
   });
 
