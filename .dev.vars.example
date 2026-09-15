@@ -1,0 +1,8 @@
+# Copy to .dev.vars (gitignored) before `npm run worker:dev`.
+# Production values belong in `wrangler secret put`, never in git.
+
+JWT_SECRET=replace-with-a-long-random-string
+APP_ORIGIN=http://localhost:5173
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,https://devarshbagla.github.io
+RESEND_API_KEY=
+RESEND_FROM=Rapidread <noreply@example.com>

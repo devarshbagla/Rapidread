@@ -1,5 +1,6 @@
 import { createStore, del, get, set } from 'idb-keyval';
 import type { FormatId } from '../parsers';
+import type { AccountUser } from '../sync/session';
 import type { NormalizedBook } from '../types/book';
 import { normalizeSettings, type Settings } from './settings';
 import type { BookSummary, ReadingProgress } from './types';
@@ -7,6 +8,7 @@ import type { BookSummary, ReadingProgress } from './types';
 const KEY_SETTINGS = 'settings';
 const KEY_BOOKS = 'books';
 const KEY_LAST_BOOK = 'last-book';
+const KEY_SESSION = 'session';
 const bookKey = (id: string) => `book:${id}`;
 const progressKey = (id: string) => `progress:${id}`;
 const flagKey = (name: string) => `flag:${name}`;
@@ -79,12 +81,48 @@ async function remove(key: string): Promise<void> {
   }
 }
 
-export async function loadSettings(): Promise<Settings> {
-  return normalizeSettings(await read<unknown>(KEY_SETTINGS));
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }
 
-export async function saveSettings(settings: Settings): Promise<void> {
-  await write(KEY_SETTINGS, settings);
+export async function loadSettings(): Promise<Settings> {
+  return (await loadSettingsRecord()).settings;
+}
+
+export async function loadSettingsRecord(): Promise<{ settings: Settings; updatedAt: number }> {
+  const raw = await read<unknown>(KEY_SETTINGS);
+  const settings = normalizeSettings(raw);
+  const updatedAt = isRecord(raw) && typeof raw.updatedAt === 'number' ? raw.updatedAt : 0;
+  return { settings, updatedAt };
+}
+
+export async function saveSettings(settings: Settings, updatedAt = Date.now()): Promise<void> {
+  await write(KEY_SETTINGS, { ...settings, updatedAt });
+}
+
+export async function loadSession(): Promise<{ token: string; user: AccountUser } | undefined> {
+  const stored = await read<unknown>(KEY_SESSION);
+  if (!isRecord(stored) || typeof stored.token !== 'string' || !isRecord(stored.user)) return undefined;
+  const user = stored.user;
+  if (typeof user.id !== 'string' || typeof user.username !== 'string') return undefined;
+  return {
+    token: stored.token,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: typeof user.email === 'string' ? user.email : null,
+      emailVerified: user.emailVerified === true,
+      createdAt: typeof user.createdAt === 'number' ? user.createdAt : 0,
+    },
+  };
+}
+
+export async function saveSession(token: string, user: AccountUser): Promise<void> {
+  await write(KEY_SESSION, { token, user });
+}
+
+export async function clearSession(): Promise<void> {
+  await remove(KEY_SESSION);
 }
 
 export async function loadBookSummaries(): Promise<BookSummary[]> {
@@ -104,7 +142,20 @@ function newId(): string {
 }
 
 /** Persist a freshly parsed book and return the shelf record for it. */
-export async function addBook(book: NormalizedBook, format: FormatId): Promise<BookSummary> {
+export async function addBook(
+  book: NormalizedBook,
+  format: FormatId,
+  fingerprint?: string,
+): Promise<BookSummary> {
+  const summaries = await loadBookSummaries();
+  if (fingerprint !== undefined) {
+    const existing = summaries.find((summary) => summary.fingerprint === fingerprint);
+    if (existing !== undefined) {
+      await write(bookKey(existing.id), book);
+      return existing;
+    }
+  }
+
   const summary: BookSummary = {
     id: newId(),
     title: book.title,
@@ -114,12 +165,28 @@ export async function addBook(book: NormalizedBook, format: FormatId): Promise<B
     chapterCount: book.chapters.length,
     format,
     addedAt: Date.now(),
+    ...(fingerprint !== undefined ? { fingerprint } : {}),
   };
 
   await write(bookKey(summary.id), book);
-  const summaries = await loadBookSummaries();
   await write(KEY_BOOKS, [...summaries, summary]);
   return summary;
+}
+
+export async function updateBookSummary(
+  id: string,
+  patch: Partial<BookSummary>,
+): Promise<BookSummary | undefined> {
+  const summaries = await loadBookSummaries();
+  const index = summaries.findIndex((summary) => summary.id === id);
+  if (index === -1) return undefined;
+  const current = summaries[index];
+  if (current === undefined) return undefined;
+  const next = { ...current, ...patch };
+  const updated = [...summaries];
+  updated[index] = next;
+  await write(KEY_BOOKS, updated);
+  return next;
 }
 
 export async function removeBook(id: string): Promise<void> {

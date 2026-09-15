@@ -97,6 +97,7 @@ export default function App() {
           key={view.bookId}
           bookId={view.bookId}
           title={activeBook?.title ?? 'this book'}
+          fingerprint={activeBook?.fingerprint}
           settings={settings}
           suspended={settingsOpen}
           entering={opening !== null}

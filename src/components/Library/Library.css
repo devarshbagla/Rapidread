@@ -134,6 +134,11 @@
   border-bottom-right-radius: var(--radius-md);
 }
 
+.tile-frame[data-remote='true'] .tile {
+  border-style: dashed;
+  color: var(--text-dim);
+}
+
 .tile-badge {
   position: absolute;
   top: 6px;

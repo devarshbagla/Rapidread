@@ -38,6 +38,9 @@ jobs:
         env:
           # Project site URL: https://<user>.github.io/Rapidread/
           BASE_PATH: /Rapidread/
+          # Optional. Set repo variable VITE_API_URL to the Worker URL after
+          # `npx wrangler deploy`. Empty keeps the app local-only.
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

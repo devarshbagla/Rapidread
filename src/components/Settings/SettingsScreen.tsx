@@ -1,3 +1,4 @@
+import { AccountSection } from '../Account/AccountSection';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { punctuationPauses, RAMP_WPM_PER_INTERVAL, RAMP_WORD_INTERVAL } from '../../reader/pacing';
@@ -66,6 +67,8 @@ export function SettingsScreen({ settings, onChange, onClose }: SettingsScreenPr
       </header>
 
       <div className="settings-body">
+        <AccountSection />
+
         <Row label="Accent color" hint="Used for the focus letter, progress and primary actions.">
             <div className="swatches" role="radiogroup" aria-label="Accent color">
             {ACCENTS.map((preset) => (
@@ -174,7 +177,8 @@ export function SettingsScreen({ settings, onChange, onClose }: SettingsScreenPr
         </section>
 
         <p className="settings-foot">
-          Books, positions and settings are stored only in this browser. Nothing is uploaded.
+          Book files stay on this device. If you sign in, reading place and settings can sync. Usernames
+          and password hashes live in a private Cloudflare database, not in this public repository.
         </p>
       </div>
     </div>

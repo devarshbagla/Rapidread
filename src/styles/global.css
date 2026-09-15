@@ -136,8 +136,18 @@ img {
     opacity var(--dur-fast) var(--ease-out);
 }
 
-.text-button:hover {
-  background: var(--accent-soft);
+.ghost-button {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.ghost-button:hover {
+  color: var(--text);
+  background: var(--surface-raised);
 }
 
 .mono {
