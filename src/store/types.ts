@@ -13,6 +13,8 @@ export interface BookSummary {
   chapterCount: number;
   format: FormatId;
   addedAt: number;
+  /** SHA-256 of canonical text; used to resume the same book on another device. */
+  fingerprint?: string;
 }
 
 export interface ReadingProgress {

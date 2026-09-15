@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { saveProgress } from '../store/db';
+import { pushProgress } from '../sync/api';
 import type { EngineSnapshot } from './useRsvpEngine';
 
 const SAVE_INTERVAL_MS = 4000;
 
 interface ProgressPersistenceOptions {
   bookId: string;
+  fingerprint: string | undefined;
   wordCount: number;
   isPlaying: boolean;
   snapshot: () => EngineSnapshot;
@@ -18,25 +20,37 @@ interface ProgressPersistenceOptions {
  */
 export function useProgressPersistence({
   bookId,
+  fingerprint,
   wordCount,
   isPlaying,
   snapshot,
 }: ProgressPersistenceOptions): void {
-  const latest = useRef({ snapshot, wordCount });
+  const latest = useRef({ snapshot, wordCount, fingerprint });
   useEffect(() => {
-    latest.current = { snapshot, wordCount };
+    latest.current = { snapshot, wordCount, fingerprint };
   });
 
   const save = useCallback(() => {
     const { wordIndex, wpm, finished } = latest.current.snapshot();
+    const updatedAt = Date.now();
     void saveProgress({
       bookId,
       wordIndex,
       wordCount: latest.current.wordCount,
       wpm,
       finished,
-      updatedAt: Date.now(),
+      updatedAt,
     });
+    if (latest.current.fingerprint !== undefined) {
+      void pushProgress({
+        fingerprint: latest.current.fingerprint,
+        wordIndex,
+        wordCount: latest.current.wordCount,
+        wpm,
+        finished,
+        updatedAt,
+      });
+    }
   }, [bookId]);
 
   useEffect(() => {
