@@ -2,19 +2,35 @@ import { handleAuth } from './auth';
 import { corsHeaders, json, type Env } from './http';
 import { handleSync } from './sync';
 
+function isApiPath(path: string): boolean {
+  return path === '/health' || path.startsWith('/auth/') || path.startsWith('/sync/');
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const path = new URL(request.url).pathname;
     const cors = corsHeaders(request, env);
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
 
-    if (env.JWT_SECRET === undefined || env.JWT_SECRET.length === 0) {
-      return json({ error: 'This API is missing JWT_SECRET.' }, 503, cors);
+    if (!isApiPath(path)) {
+      if (env.ASSETS !== undefined) return env.ASSETS.fetch(request);
+      return json({ error: 'Not found.' }, 404, cors);
     }
 
-    const path = new URL(request.url).pathname;
+    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
 
     if (path === '/health' && request.method === 'GET') {
-      return json({ ok: true }, 200, cors);
+      return json(
+        {
+          ok: true,
+          accounts: env.JWT_SECRET !== undefined && env.JWT_SECRET.length > 0,
+        },
+        200,
+        cors,
+      );
+    }
+
+    if (env.JWT_SECRET === undefined || env.JWT_SECRET.length === 0) {
+      return json({ error: 'Accounts are not configured on the server yet.' }, 503, cors);
     }
 
     try {

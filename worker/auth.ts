@@ -69,7 +69,7 @@ async function requireUser(
 }
 
 function appOrigin(env: Env): string {
-  return env.APP_ORIGIN.replace(/\/$/, '');
+  return (env.APP_ORIGIN ?? 'https://devarshbagla.github.io/Rapidread').replace(/\/$/, '');
 }
 
 async function issueToken(
@@ -179,7 +179,7 @@ export async function handleAuth(
       await sendVerifyEmail(env, email, token);
     }
 
-    const token = await signJwt(id, displayName, env.JWT_SECRET);
+    const token = await signJwt(id, displayName, env.JWT_SECRET ?? '');
     return json(
       {
         token,
@@ -218,7 +218,7 @@ export async function handleAuth(
         cors,
       );
     }
-    const token = await signJwt(user.id, user.username, env.JWT_SECRET);
+    const token = await signJwt(user.id, user.username, env.JWT_SECRET ?? '');
     return json({ token, user: publicUser(user) }, 200, cors);
   }
 
@@ -270,7 +270,7 @@ export async function handleAuth(
       .run();
     const user = await loadUserById(env.DB, userId);
     if (user === null) return json({ error: 'This confirmation link is invalid or has expired.' }, 400, cors);
-    const jwt = await signJwt(user.id, user.username, env.JWT_SECRET);
+    const jwt = await signJwt(user.id, user.username, env.JWT_SECRET ?? '');
     return json({ token: jwt, user: publicUser(user) }, 200, cors);
   }
 
@@ -334,7 +334,7 @@ export async function handleAuth(
       .run();
     const user = await loadUserById(env.DB, userId);
     if (user === null) return json({ error: 'This reset link is invalid or has expired.' }, 400, cors);
-    const jwt = await signJwt(user.id, user.username, env.JWT_SECRET);
+    const jwt = await signJwt(user.id, user.username, env.JWT_SECRET ?? '');
     return json({ token: jwt, user: publicUser(user) }, 200, cors);
   }
 

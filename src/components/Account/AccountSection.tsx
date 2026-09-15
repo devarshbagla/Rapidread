@@ -19,7 +19,8 @@ export function AccountSection() {
         <h2 className="settings-section-title">Account</h2>
         <p className="account-copy">
           Sign-in is optional. This build has no API URL, so everything still stays on this device.
-          Set <span className="mono">VITE_API_URL</span> to your Worker after you deploy it.
+          Set <span className="mono">VITE_API_URL</span> if this copy is on GitHub Pages. On the
+          Cloudflare Worker host, accounts use this same origin.
         </p>
       </section>
     );

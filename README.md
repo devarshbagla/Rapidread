@@ -25,17 +25,18 @@ npm run dev
 
 The UI is usually `http://localhost:5173`. The API is `http://127.0.0.1:8787` (already set in `.env.example`).
 
-First-time Cloudflare setup (on your machine, after `npx wrangler login`):
+Cloudflare Workers Builds (the **rapidread** Worker in your dashboard) uses **build command** `npm run build`. This repo’s `wrangler.jsonc` is named `rapidread` so that Git-connected deploy serves `dist/` and the `/auth` + `/sync` API from the same host.
+
+First-time D1 (on your machine, after `npx wrangler login`), if the dashboard did not provision it:
 
 ```bash
 npm run worker:d1:create
 npm run worker:d1:migrate
 npm run worker:d1:migrate:remote
 npx wrangler secret put JWT_SECRET
-npm run worker:deploy
 ```
 
-`worker:d1:create` writes the real database id into `wrangler.jsonc`. Commit that id (it is not a password). Never commit `.dev.vars`.
+`worker:d1:create` writes the database id into `wrangler.jsonc`. Commit that id (it is not a password). Never commit `.dev.vars`.
 
 Forgot-password email needs a [Resend](https://resend.com) API key and a verified from-address:
 
@@ -45,7 +46,7 @@ npx wrangler secret put RESEND_API_KEY
 
 Until that exists, accounts still work; reset links cannot be sent.
 
-After the Worker is live, set the GitHub Actions variable `VITE_API_URL` to the Worker URL so the Pages build can sign in. Cloudflare Pages can keep using **build command** `npm run build` for the UI; the API is this Worker, not the static `dist/` folder.
+GitHub Pages still needs the Actions variable `VITE_API_URL` set to the Worker origin (for example `https://rapidread.<subdomain>.workers.dev`) so that copy can sign in. On the Worker host itself, the UI and API share the origin — no extra URL is required.
 
 ## GitHub Pages
 

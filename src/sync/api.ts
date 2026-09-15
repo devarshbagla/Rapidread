@@ -9,7 +9,12 @@ export function apiBase(): string {
 }
 
 export function isApiConfigured(): boolean {
-  return apiBase().length > 0;
+  if (apiBase().length > 0) return true;
+  if (typeof window === 'undefined') return false;
+  const { hostname, port } = window.location;
+  if (hostname.endsWith('github.io')) return false;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') return port === '8787';
+  return true;
 }
 
 interface ApiResult<T> {
