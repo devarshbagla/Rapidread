@@ -25,7 +25,9 @@ npm run dev
 
 The UI is usually `http://localhost:5173`. The API is `http://127.0.0.1:8787` (already set in `.env.example`).
 
-Cloudflare Workers Builds (the **rapidread** Worker in your dashboard) uses **build command** `npm run build`. This repo’s `wrangler.jsonc` is named `rapidread` so that Git-connected deploy serves `dist/` and the `/auth` + `/sync` API from the same host.
+Cloudflare Workers Builds (the **rapidread** Worker) must watch the **`main` branch**, not `gh-pages`. `gh-pages` is only the static GitHub Pages dump — it has no `package.json`, so `npm run build` fails in a few seconds.
+
+In the Worker: **Settings → Builds** → production branch **main**. Build command stays `npm run build`.
 
 First-time D1 (on your machine, after `npx wrangler login`), if the dashboard did not provision it:
 
