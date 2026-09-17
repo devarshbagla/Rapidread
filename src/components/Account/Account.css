@@ -1,0 +1,92 @@
+.account {
+  padding: 22px 0 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.account-identity {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.account-copy {
+  margin-top: 8px;
+  color: var(--text-dim);
+  font-size: 12.5px;
+  line-height: 1.5;
+  max-width: 34rem;
+}
+
+.account-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 14px 0 12px;
+}
+
+.account-tab {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-size: 12.5px;
+}
+
+.account-tab[aria-selected='true'] {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.account-form {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.account-field {
+  display: grid;
+  gap: 4px;
+  width: min(100%, 320px);
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.account-field input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.account-status {
+  margin-top: 12px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.account-signout {
+  margin-top: 12px;
+}
+
+.account-nudge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 8px 10px 12px;
+  border: 1px solid var(--hairline);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.account-nudge-actions {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+}

@@ -23,6 +23,7 @@ const READOUT_LINGER_MS = 1400;
 interface ReaderProps {
   bookId: string;
   title: string;
+  fingerprint: string | undefined;
   settings: Settings;
   /** True while Settings is on top: playback stays paused and keys are inert. */
   suspended: boolean;
@@ -69,6 +70,7 @@ function ReaderStage({
   book,
   progress,
   bookId,
+  fingerprint,
   title,
   settings,
   suspended,
@@ -97,6 +99,7 @@ function ReaderStage({
 
   useProgressPersistence({
     bookId,
+    fingerprint,
     wordCount: book.wordCount,
     isPlaying: engine.isPlaying,
     snapshot: engine.snapshot,
