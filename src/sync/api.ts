@@ -8,6 +8,11 @@ export function apiBase(): string {
   return value.replace(/\/$/, '');
 }
 
+/** Empty base means same origin — the Cloudflare Worker hosts the UI and `/auth`. */
+export function accountRequestUrl(path: string, base = apiBase()): string {
+  return `${base}${path}`;
+}
+
 export function isApiConfigured(): boolean {
   if (apiBase().length > 0) return true;
   if (typeof window === 'undefined') return false;
@@ -35,8 +40,7 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<ApiResult<T>> {
-  const base = apiBase();
-  if (base.length === 0) throw new ApiError('Accounts are not configured in this build.', 503);
+  if (!isApiConfigured()) throw new ApiError('Accounts are not configured in this build.', 503);
 
   const headers = new Headers(init.headers);
   if (init.body !== undefined && !headers.has('Content-Type')) {
@@ -47,7 +51,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<ApiResu
 
   let response: Response;
   try {
-    response = await fetch(`${base}${path}`, { ...init, headers });
+    response = await fetch(accountRequestUrl(path), { ...init, headers });
   } catch {
     throw new ApiError('Could not reach the Rapidread server.', 0);
   }
